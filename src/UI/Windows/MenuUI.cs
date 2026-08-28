@@ -21,6 +21,7 @@ public class MenuUI : MonoBehaviour
         _tabs.Add(new MovementTab());
         _tabs.Add(new ESPTab());
         _tabs.Add(new RolesTab());
+        //_tabs.Add(new TrollTab());
         _tabs.Add(new ShipTab());
         _tabs.Add(new ChatTab());
         _tabs.Add(new AnimationsTab());
@@ -29,7 +30,7 @@ public class MenuUI : MonoBehaviour
         _tabs.Add(new PassiveTab());
         _tabs.Add(new ModesTab());
         _tabs.Add(new ConfigTab());
-        // _tabs.Add(new OverloadTab());
+        _tabs.Add(new OverloadTab());
 
         // Instantiate 2D area of MenuUI
         windowRect = new(

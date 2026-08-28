@@ -14,6 +14,7 @@ using Sentry.Internal.Extensions;
 using System.Runtime.CompilerServices;
 using AmongUs.InnerNet.GameDataMessages;
 using Il2CppInterop.Runtime.Injection;
+using MalumMenu.network;
 
 namespace MalumMenu;
 
@@ -766,6 +767,57 @@ public static class Utils
         }
     }
 
+    public static void KickPlayer(PlayerControl player, bool skipFirstStage = false)
+    {
+        if (AmongUsClient.Instance.AmHost)
+        {
+            AmongUsClient.Instance.KickPlayer(player.OwnerId, true);
+            // Player has been kicked from the game.
+            return;
+        }
+
+        if (player.OwnerId == AmongUsClient.Instance.HostId || player == PlayerControl.LocalPlayer)
+        {
+            // You are not able to kick out the host of the lobby.
+            return;
+        }
+
+        if (ShipStatus.Instance == null)
+        {
+            // The game must have started in order for this feature to work.
+            return;
+        }
+
+        BatchedMessage batch = new BatchedMessage(player.OwnerId);
+
+        if (!skipFirstStage)
+        {
+            // Sending Enter ventilation system update to Owner
+
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.Write((ushort)0);
+            writer.Write((byte)VentilationSystem.Operation.Enter);
+            writer.Write((byte)0);
+
+            batch.QueueUpdateSystem(PlayerControl.LocalPlayer, SystemTypes.Ventilation, writer);
+            writer.Recycle();
+        }
+
+        // Sending BootImposters ventilation system update to Owner
+
+        MessageWriter writer2 = MessageWriter.Get(SendOption.Reliable);
+        writer2.Write((ushort)1);
+        writer2.Write((byte)VentilationSystem.Operation.BootImpostors);
+        writer2.Write((byte)0);
+
+        batch.QueueUpdateSystem(PlayerControl.LocalPlayer, SystemTypes.Ventilation, writer2);
+        writer2.Recycle();
+
+        batch.FinishBatch();
+
+        // Player has been kicked from the game.
+    }
+
     public static void Panic()
     {
         MalumMenu.isPanicked = true;
@@ -788,6 +840,7 @@ public static class Utils
         UnityEngine.Object.Destroy(MalumMenu.doorsUI);
         UnityEngine.Object.Destroy(MalumMenu.tasksUI);
         UnityEngine.Object.Destroy(MalumMenu.protectUI);
+        UnityEngine.Object.Destroy(MalumMenu.kickUI);
         // UnityEngine.Object.Destroy(MalumMenu.rolesUI);
         // UnityEngine.Object.Destroy(MalumMenu.overloadUI);
 

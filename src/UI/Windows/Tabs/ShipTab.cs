@@ -33,7 +33,7 @@ public class ShipTab : ITab
     {
         CheatToggles.unfixableLights = GUILayout.Toggle(CheatToggles.unfixableLights, " Unfixable Lights");
 
-        // CheatToggles.reportBody = GUILayout.Toggle(CheatToggles.reportBody, " Report Body");
+        CheatToggles.reportBody = GUILayout.Toggle(CheatToggles.reportBody, " Report Body");
 
         CheatToggles.callMeeting = GUILayout.Toggle(CheatToggles.callMeeting, " Call Meeting");
 
@@ -42,6 +42,8 @@ public class ShipTab : ITab
         CheatToggles.autoReportBodies = GUILayout.Toggle(CheatToggles.autoReportBodies, " Auto-Report Dead Bodies");
 
         CheatToggles.autoOpenDoorsOnUse = GUILayout.Toggle(CheatToggles.autoOpenDoorsOnUse, " Auto-Open Doors On Use");
+
+        CheatToggles.showKickMenu = GUILayout.Toggle(CheatToggles.showKickMenu, "Open Kick Menu");
     }
 
     private void DrawSabotage()

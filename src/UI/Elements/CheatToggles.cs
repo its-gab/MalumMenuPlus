@@ -48,6 +48,8 @@ public struct CheatToggles
     public static bool revealVotes;
     public static bool seeLobbyInfo;
 
+    // Troll
+
     // Camera
     public static bool spectate;
     public static bool zoomOut;
@@ -78,6 +80,7 @@ public struct CheatToggles
     // Ship
     public static bool closeMeeting;
     public static bool autoOpenDoorsOnUse;
+    public static bool showKickMenu;
     public static bool unfixableLights;
     public static bool callMeeting;
     public static bool reportBody;
