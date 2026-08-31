@@ -1,6 +1,6 @@
 using UnityEngine;
 using Il2CppSystem.Collections.Generic;
-
+using MalumMenu.Network;
 namespace MalumMenu;
 
 public class KickUI : MonoBehaviour
@@ -49,7 +49,7 @@ public class KickUI : MonoBehaviour
         GUILayout.BeginVertical();
 
         // =========================
-        // PLAYER SCROLL AREA
+        // PLAYER SCROLL VIEW
         // =========================
 
         playerScrollPosition = GUILayout.BeginScrollView(
@@ -62,9 +62,12 @@ public class KickUI : MonoBehaviour
             if (!player)
                 continue;
 
-            // Don't show host or local player
-            if (player.OwnerId == AmongUsClient.Instance.HostId ||
-                player == PlayerControl.LocalPlayer)
+            // Don't show host
+            if (player.OwnerId == AmongUsClient.Instance.HostId)
+                continue;
+
+            // Don't show local player
+            if (player == PlayerControl.LocalPlayer)
                 continue;
 
             // Safety checks
@@ -76,12 +79,34 @@ public class KickUI : MonoBehaviour
 
             GUILayout.BeginHorizontal();
 
+            // Player name
             GUILayout.Label(
                 $"<color=#{ColorUtility.ToHtmlStringRGB(player.Data.Color)}>{player.Data.PlayerName}</color>",
                 GUILayout.Width(180f)
             );
 
             GUILayout.FlexibleSpace();
+
+            // =========================
+            // COPY BUTTON
+            // =========================
+
+            if (GUILayout.Button(
+                "Copy",
+                GUIStylePreset.NormalButton,
+                GUILayout.Width(60f)))
+            {
+                if (PlayerControl.LocalPlayer &&
+                    player &&
+                    player.Data)
+                {
+                    Utils.CopyPlayer(player);
+                }
+            }
+
+            // =========================
+            // KICK BUTTON
+            // =========================
 
             if (GUILayout.Button(
                 "Kick",
@@ -117,6 +142,7 @@ public class KickUI : MonoBehaviour
 
         GUILayout.BeginHorizontal();
 
+        // Kick All Crew
         if (GUILayout.Button(
             "Kick All Crew",
             GUIStylePreset.NormalButton))
@@ -140,6 +166,7 @@ public class KickUI : MonoBehaviour
             }
         }
 
+        // Kick All Imps
         if (GUILayout.Button(
             "Kick All Imps",
             GUIStylePreset.NormalButton))
@@ -163,6 +190,7 @@ public class KickUI : MonoBehaviour
             }
         }
 
+        // Kick All
         if (GUILayout.Button(
             "Kick All",
             GUIStylePreset.NormalButton))

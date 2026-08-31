@@ -1,4 +1,4 @@
-namespace MalumMenu.network
+namespace MalumMenu.Network
 {
     internal class Constants
     {

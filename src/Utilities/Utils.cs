@@ -14,7 +14,8 @@ using Sentry.Internal.Extensions;
 using System.Runtime.CompilerServices;
 using AmongUs.InnerNet.GameDataMessages;
 using Il2CppInterop.Runtime.Injection;
-using MalumMenu.network;
+using MalumMenu.Network;
+using static MalumMenu.Network.Constants;
 
 namespace MalumMenu;
 
@@ -783,10 +784,9 @@ public static class Utils
         }
 
         if (ShipStatus.Instance == null)
-        {
-            // The game must have started in order for this feature to work.
+            //The game must have started in order for this feature to work.
             return;
-        }
+        
 
         BatchedMessage batch = new BatchedMessage(player.OwnerId);
 
@@ -816,6 +816,45 @@ public static class Utils
         batch.FinishBatch();
 
         // Player has been kicked from the game.
+    }
+
+    public static bool IsAnticheatPresent()
+    {
+        if (Constants.IsVersionModded() || PlayerControl.LocalPlayer == null || PlayerControl.LocalPlayer.Data == null) return false;
+
+        // On Freeplay, local, and modded lobbies, NetworkedPlayerInfo net objects are owned by the host (-2)
+        // On vanilla lobbies, NetworkedPlayerInfo net objects are owned by the backend among us servers (-4)
+        // If our NetworkedPlayerInfo net object is owned by the host, we can assume that the lobby has a lax anticheat without server authority
+        // which does not require us to use any sort of bypasses
+        return PlayerControl.LocalPlayer.Data.OwnerId != (int)OwnerIds.Host;
+    }
+
+    public static void CopyPlayer(PlayerControl player)
+    {
+        NetworkedPlayerInfo.PlayerOutfit outfit = player.CurrentOutfit;
+
+        bool hasAnticheat = IsAnticheatPresent();
+
+        BatchedMessage batch = new BatchedMessage();
+
+        // We cannot change the name of our player in server-authoritative lobbies, even as the host
+        if (!hasAnticheat)
+        {
+            batch.QueueSetName(PlayerControl.LocalPlayer, outfit.PlayerName);
+        }
+
+        if (!hasAnticheat || AmongUsClient.Instance.AmHost)
+        {
+            batch.QueueSetColor(PlayerControl.LocalPlayer, (byte)outfit.ColorId);
+        }
+
+        batch.QueueSetNameplateStr(PlayerControl.LocalPlayer, outfit.NamePlateId, ++outfit.NamePlateSequenceId);
+        batch.QueueSetHatStr(PlayerControl.LocalPlayer, outfit.HatId, ++outfit.HatSequenceId);
+        batch.QueueSetVisorStr(PlayerControl.LocalPlayer, outfit.VisorId, ++outfit.VisorSequenceId);
+        batch.QueueSetSkinStr(PlayerControl.LocalPlayer, outfit.SkinId, ++outfit.SkinSequenceId);
+        batch.QueueSetPetStr(PlayerControl.LocalPlayer, outfit.PetId, ++outfit.PetSequenceId);
+
+        batch.FinishBatch();
     }
 
     public static void Panic()

@@ -4,7 +4,7 @@ using Hazel;
 using InnerNet;
 using UnityEngine;
 
-namespace MalumMenu.network
+namespace MalumMenu.Network
 {
     internal class BatchedMessage
     {
