@@ -34,7 +34,7 @@ public partial class MalumMenu : BasePlugin
     public static string malumVersion = "3.3.1";
     public static List<string> supportedAU = new List<string> { "2026.9.29" };
     public static bool isPanicked = false;
-    public static bool inStealthMode = false;
+    public static bool inStealthMode = true;
 
     public static ConfigEntry<string> menuKeybind;
     public static ConfigEntry<string> menuHtmlColor;
@@ -89,7 +89,7 @@ public partial class MalumMenu : BasePlugin
 
         autoLoadProfile = Config.Bind("MalumMenu.Profile",
                                 "AutoLoadProfile",
-                                false,
+                                true,
                                 "When enabled, your saved keybind and toggle profile will be automatically loaded at game startup");
 
         configEditor = Config.Bind("MalumMenu.Config",
@@ -198,8 +198,8 @@ public partial class MalumMenu : BasePlugin
         tasksUI = AddComponent<TasksUI>();
         protectUI = AddComponent<ProtectUI>();
         kickUI = AddComponent<KickUI>();
-        // overloadUI = AddComponent<OverloadUI>();
-        // rolesUI = AddComponent<RolesUI>();
+        overloadUI = AddComponent<OverloadUI>();
+        rolesUI = AddComponent<RolesUI>();
 
         // Components
         keybindListener = AddComponent<KeybindListener>();
@@ -231,7 +231,7 @@ public partial class MalumMenu : BasePlugin
                 // Warns about unsupported AU versions
                 if (!supportedAU.Contains(Application.version))
                 {
-                    Utils.ShowPopup("\nThis version of MalumMenu and this version of Among Us are incompatible\n\nInstall the right version to avoid problems");
+                    Utils.ShowPopup("\nThis version of MalumMenuPlus and this version of Among Us are incompatible\n\nInstall the right version to avoid problems");
                 }
             }
         }));
