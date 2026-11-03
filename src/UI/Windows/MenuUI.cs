@@ -206,7 +206,7 @@ public class MenuUI : MonoBehaviour
         GUILayout.BeginHorizontal();
 
         // Searchable tab selector
-        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.18f));
+        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.15f));
         GUILayout.Label("Find tab", GUIStylePreset.TabSubtitle);
         var newTabSearch = GUILayout.TextField(_tabSearch, GUIStylePreset.SearchField, GUILayout.Height(30f));
         if (!string.Equals(newTabSearch, _tabSearch, StringComparison.Ordinal))
@@ -255,7 +255,7 @@ public class MenuUI : MonoBehaviour
         GUILayout.Space(10f);
 
         // Right tab content
-        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.80f));
+        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.85f));
 
         GUILayout.BeginHorizontal();
         if (_selectedTab >= 0 && _selectedTab < _tabs.Count)
