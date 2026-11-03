@@ -267,21 +267,28 @@ public static class OverloadHandler
     // Returns adapted strength and cooldown using number of currentTargets and AmongUsClient ping
     // Should balance them to aim for low lag but effective output
     public static (int strength, float cooldown) CalculateAdaptedValues()
-    {
-        int targetCount = OverloadUI.maxPossibleTargets == OverloadUI.currentTargets.Count
-                        ? 1 // Broadcast mode counts as one target
-                        : Math.Max(1, OverloadUI.currentTargets.Count); // Prevents division by 0
+{
+    if (MalumMenu.adaptMaxStrength == null)
+        throw new Exception("adaptMaxStrength is NULL");
 
-        float maxCooldown = MalumMenu.adaptMaxCooldown.Value;
-        float cooldown = maxCooldown / targetCount;
+    if (MalumMenu.adaptMaxCooldown == null)
+        throw new Exception("adaptMaxCooldown is NULL");
 
-        int pingLevel = Math.Max(1, Utils.GetPing() / 100); // 0-99 ms = Lvl 1, 100-199 ms = Lvl 1, 200-299 ms = Lvl 2, ...
+    int targetCount = Math.Max(1, OverloadUI.currentTargets.Count);
 
-        int maxStrength = MalumMenu.adaptMaxStrength.Value;
-        int strength = Math.Max(1, maxStrength / pingLevel / targetCount);
+    if (OverloadUI.maxPossibleTargets == OverloadUI.currentTargets.Count)
+        targetCount = 1;
 
-        return (strength, cooldown);
-    }
+    int maxStrength = MalumMenu.adaptMaxStrength.Value;
+    float maxCooldown = MalumMenu.adaptMaxCooldown.Value;
+
+    int pingLevel = Math.Max(1, Utils.GetPing() / 100);
+
+    int strength = Math.Max(1, maxStrength / pingLevel / targetCount);
+    float cooldown = maxCooldown / targetCount;
+
+    return (strength, cooldown);
+}
 
     public enum TargetType
     {

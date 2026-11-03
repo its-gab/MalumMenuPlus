@@ -198,7 +198,7 @@ public partial class MalumMenu : BasePlugin
         tasksUI = AddComponent<TasksUI>();
         protectUI = AddComponent<ProtectUI>();
         kickUI = AddComponent<KickUI>();
-        overloadUI = AddComponent<OverloadUI>();
+        // overloadUI = AddComponent<OverloadUI>();
         rolesUI = AddComponent<RolesUI>();
 
         // Components
