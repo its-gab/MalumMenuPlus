@@ -8,6 +8,7 @@ public static class GUIStylePreset
     private static GUIStyle _darkSeparator;
     private static GUIStyle _normalButton;
     private static GUIStyle _normalToggle;
+    private static GUIStyle _searchField;
     private static GUIStyle _tabButton;
     private static GUIStyle _tabTitle;
     private static GUIStyle _tabSubtitle;
@@ -79,6 +80,23 @@ public static class GUIStylePreset
             }
 
             return _normalToggle;
+        }
+    }
+
+    public static GUIStyle SearchField
+    {
+        get
+        {
+            if (_searchField == null)
+            {
+                _searchField = new GUIStyle(GUI.skin.textField)
+                {
+                    fontSize = 13,
+                    padding = new RectOffset { left = 6, right = 6, top = 4, bottom = 4 }
+                };
+            }
+
+            return _searchField;
         }
     }
 

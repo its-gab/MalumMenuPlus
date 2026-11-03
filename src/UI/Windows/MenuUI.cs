@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System;
 
 namespace MalumMenu;
 
@@ -13,6 +14,9 @@ public class MenuUI : MonoBehaviour
     public static bool isGUIActive = false;
     private List<ITab> _tabs = new();
     private int _selectedTab;
+    private string _tabSearch = "";
+    private Vector2 _tabScrollPosition;
+    private Vector2 _contentScrollPosition;
     public static float hue; // For RGB mode
 
     private void Start()
@@ -31,6 +35,8 @@ public class MenuUI : MonoBehaviour
         _tabs.Add(new ModesTab());
         _tabs.Add(new ConfigTab());
         _tabs.Add(new OverloadTab());
+
+        UpdateWindowSize();
 
         // Instantiate 2D area of MenuUI
         windowRect = new(
@@ -185,21 +191,45 @@ public class MenuUI : MonoBehaviour
     {
         if (!isGUIActive || MalumMenu.isPanicked) return;
 
+        UpdateWindowSize();
         InitStyles();
 
         UIHelpers.ApplyUIColor();
 
         windowRect = GUI.Window((int)WindowId.MenuUI, windowRect, (GUI.WindowFunction)WindowFunction, "MalumMenu v" + MalumMenu.malumVersion);
+        windowRect.x = Mathf.Clamp(windowRect.x, 0f, Mathf.Max(0f, Screen.width - windowRect.width));
+        windowRect.y = Mathf.Clamp(windowRect.y, 0f, Mathf.Max(0f, Screen.height - windowRect.height));
     }
 
     public void WindowFunction(int windowID)
     {
         GUILayout.BeginHorizontal();
 
-        // Left tab selector (15% width)
-        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.15f));
+        // Searchable tab selector
+        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.18f));
+        GUILayout.Label("Find tab", GUIStylePreset.TabSubtitle);
+        var newTabSearch = GUILayout.TextField(_tabSearch, GUIStylePreset.SearchField, GUILayout.Height(30f));
+        if (!string.Equals(newTabSearch, _tabSearch, StringComparison.Ordinal))
+        {
+            _tabSearch = newTabSearch;
+            var matchingTab = string.IsNullOrWhiteSpace(_tabSearch)
+                ? (_selectedTab >= 0 ? _selectedTab : 0)
+                : _tabs.FindIndex(tab => tab.name.IndexOf(_tabSearch, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            _selectedTab = matchingTab;
+            _contentScrollPosition = Vector2.zero;
+        }
+
+        _tabScrollPosition = GUILayout.BeginScrollView(_tabScrollPosition, false, true);
+        var visibleTabs = 0;
         for (var i = 0; i < _tabs.Count; i++)
         {
+            if (!string.IsNullOrWhiteSpace(_tabSearch) &&
+                _tabs[i].name.IndexOf(_tabSearch, StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                continue;
+            }
+
             Color standardColor = GUI.backgroundColor;
 
             if (_selectedTab == i)
@@ -211,29 +241,62 @@ public class MenuUI : MonoBehaviour
                 _selectedTab = i;
 
             GUI.backgroundColor = standardColor;
-
+            visibleTabs++;
         }
+
+        if (visibleTabs == 0)
+        {
+            GUILayout.Label("No tabs found.");
+        }
+        GUILayout.EndScrollView();
         GUILayout.EndVertical();
 
-        // Vertical separator line + invisible space to create gap between the tab selector and the content
         GUILayout.Box("", GUIStylePreset.Separator, GUILayout.Width(1f), GUILayout.ExpandHeight(true));
         GUILayout.Space(10f);
 
-        // Right tab content and controls (85% width)
-        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.85f));
+        // Right tab content
+        GUILayout.BeginVertical(GUILayout.Width(windowWidth * 0.80f));
 
-        // Tab-specific content
+        GUILayout.BeginHorizontal();
         if (_selectedTab >= 0 && _selectedTab < _tabs.Count)
         {
             GUILayout.Label(_tabs[_selectedTab].name, GUIStylePreset.TabTitle);
+        }
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Close", GUIStylePreset.NormalButton, GUILayout.Width(70f), GUILayout.Height(28f)))
+        {
+            isGUIActive = false;
+        }
+        GUILayout.EndHorizontal();
+
+        _contentScrollPosition = GUILayout.BeginScrollView(_contentScrollPosition, false, true);
+        if (_selectedTab >= 0 && _selectedTab < _tabs.Count)
+        {
             _tabs[_selectedTab].Draw();
         }
-
+        GUILayout.EndScrollView();
         GUILayout.EndVertical();
 
         GUILayout.EndHorizontal();
 
         // Make the window draggable
         GUI.DragWindow();
+    }
+
+    private void UpdateWindowSize()
+    {
+        var previousWidth = windowWidth;
+        var previousHeight = windowHeight;
+
+        windowWidth = Mathf.Max(1, Mathf.RoundToInt(Mathf.Min(700f, Screen.width * 0.92f)));
+        windowHeight = Mathf.Max(1, Mathf.RoundToInt(Mathf.Min(550f, Screen.height * 0.92f)));
+        windowRect.width = windowWidth;
+        windowRect.height = windowHeight;
+
+        if (previousWidth != windowWidth || previousHeight != windowHeight)
+        {
+            windowRect.x = Mathf.Clamp(windowRect.x, 0f, Mathf.Max(0f, Screen.width - windowWidth));
+            windowRect.y = Mathf.Clamp(windowRect.y, 0f, Mathf.Max(0f, Screen.height - windowHeight));
+        }
     }
 }
